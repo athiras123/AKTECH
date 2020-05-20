@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="block-header">
+                
+            </div>
+            <!-- Input -->
+<form method="post" action="<?php echo base_url('admincnt/prodisplay');?>" enctype="multipart/form-data" >      
+<div class="row clearfix">
+     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+     <div class="card">
+     <div class="header">
+        <h2>
+        Products
+        </h2>
+        <ul class="header-dropdown m-r--5">
+        <li class="dropdown">
+        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            <i class="material-icons">more_vert</i>
+        </a>
+        <ul class="dropdown-menu pull-right">
+        <li><a href="javascript:void(0);">Action</a></li>
+        <li><a href="javascript:void(0);">Another action</a></li>
+        <li><a href="javascript:void(0);">Something else here</a></li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+    <div class="body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover js-basic-example dataTable">
+        <thead>
+            <tr>
+                <th>Sl No</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Sales Price</th>
+                <th>MRP</th>
+                <th>Stock</th>
+                <th>Type</th>
+                <th>Image</th>
+                <th>Actions</th> 
+            </tr>
+        </thead>
+
+        
+        <tbody>
+        <?php 
+        foreach ($result as $rlt):
+        
+        ?>
+                            <tr>
+                                <td><?= $rlt->itemid ?></td>
+                                <td><?= $rlt->itemname ?></td>
+                                <td><?= $rlt->itemcategory ?></td>
+                                <td><?= $rlt->itemprice ?></td>
+                                <td><?= $rlt->itemmrp ?></td>
+                                <td><?= $rlt->itemqty ?></td>
+                                <td><?= $rlt->ismodel ?></td>
+                                <td><img src="<?php echo base_url();?>/upload/<?php echo$rlt->itemimg;?>"width="50" height="50"/></td>
+                                 <td><a href="<?php echo base_url('admincnt/proupdate/'. $rlt->itemid.''); ?>">Edit</a>
+                                <br>
+                                <a href="<?php echo base_url('admincnt/prodelete/'. $rlt->itemid.'');?>">Delete</a></td>
+                            </tr>
+                        <?php endforeach; ?> 
+                        
+        </tbody>
+    </table>
+    
+    </div>
+    </div>
+    </div>
+    </div>
+</div>
+</form>
+</section>

@@ -1,0 +1,386 @@
+<?php
+    class admincnt extends CI_Controller
+    {
+            function __construct() 
+            {
+            parent::__construct();
+            $this->load->model('adminmodel');
+            $this->load->library('form_validation');
+            $this->load->library('session');
+            $this->load->helper('url');
+            
+            }
+            public function index()
+            {
+                $data = array(
+                    'view'=>'admin/index'
+                        );
+            $this->load->view('admin/default',$data);
+            }
+            public function cat()
+                {
+                        $result=$this->adminmodel->catparent();
+
+                        
+                    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+                    $this->form_validation->set_rules('category', 'category', 'required');
+                    // $this->form_validation->set_rules('catpriority', 'catpriority', 'required');
+                    $this->form_validation->set_rules('catdesc', 'catdesc', 'required');
+                            
+                    if($this->form_validation->run() == FALSE)
+                        {
+                            
+                        $data = array(
+                                'view'=>'admin/addcat',
+                                'result'=>$result
+                                    );
+                        $this->load->view('admin/default',$data);
+                        } 
+                    else
+                        {
+                        $config['upload_path'] ='./upload/';
+                        $config['allowed_types'] = 'gif|jpg|png';
+                        $this->load->library('upload', $config);
+                        if($this->upload->do_upload('image'))
+                            {
+               if(empty($catparent)){
+
+                    $catparent = NULL;
+
+                }
+                            $data =  $this->upload->data();
+                            $image=$data['file_name']; 
+                            $info = array(
+                                    'category'=>$this->input->post('category'),
+                                    'catparent'=>$catparent,
+                                    'image'=>$image,
+                                    'catslug'=>slug($this->input->post("category")),
+                                    'catpriority'=>$this->input->post('catpriority'),
+                                    'catdesc'=>$this->input->post('catdesc')
+                                        );
+
+                                        
+
+                            $this->adminmodel->catinsert($info);
+                            }
+                        redirect("admincnt/cat");
+     }
+            }
+            public function catdisplay()
+            {
+                
+            $r=$this->adminmodel->show();
+            $data['result']=$r;
+            $data = array(
+                'view'=>'admin/catdisplay',
+                'result'=>$r
+                    );
+            $this->load->view('admin/default',$data);
+            }
+            public function catdelete($id)
+            {
+            $this->adminmodel->catdelete($id);
+            redirect("admincnt/catdisplay");
+            }
+            public function catupdate($id)
+            {
+            $result = $this->adminmodel->catupdate($id);
+            $data=array(
+                    'catid'=> $result->catid,
+                    'category' => $result->category,
+                    'catparent' => $result->catparent,
+                    'image' =>$result->image,
+                    'catpriority' =>$result->catpriority,
+                    'catdesc' =>$result->catdesc,
+                'view'=>'admin/catupdate'
+                    );
+                    $this->load->view('admin/default',$data);
+            }
+ public function catupdateaction()
+ {
+     
+   $id=$this->input->post('catid');
+    
+    
+       if ($_FILES['image']['name'])
+     {
+      
+        $config['upload_path'] = './upload/';
+        $config['allowed_types'] = '*';
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        $this->upload->do_upload('image');
+        $data =$this->upload->data();
+
+        $image=$data['file_name']; 
+        
+
+        $data=array(
+            'category'=>$this->input->post('category'),
+            'catparent' =>$catparent,
+            'image'=>$image,
+            'catpriority'=>$this->input->post('catpriority'),
+            'catdesc'=>$this->input->post('catdesc')
+           
+        );
+        
+    $this->adminmodel->catupdateaction($id,$data); 
+    
+      }
+      else{
+        
+        $data = array(
+            'category'=>$this->input->post('category'),
+            'catparent' =>$catparent,
+           
+            'catpriority'=>$this->input->post('catpriority'),
+            'catdesc'=>$this->input->post('catdesc')
+        );
+               $this->adminmodel->catupdateaction($id,$data); 
+       
+
+      }
+       redirect("admincnt/catdisplay");   
+        }
+        public function product()
+        {
+            $result=$this->adminmodel->itemparent();
+            $res=$this->adminmodel->getitemid();
+            $data['reslt']=$res;
+
+            $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+            $this->form_validation->set_rules('itemname', 'itemname', 'trim|required');
+            // $this->form_validation->set_rules('itemcategory', 'itemcategory', 'trim|required');
+            // $this->form_validation->set_rules('ismodel', 'ismodel', 'trim|required');
+            // $this->form_validation->set_rules('itemparent', 'itemparent', 'trim|required');
+            // $this->form_validation->set_rules('itemunit', 'itemunit', 'trim|required');
+            // $this->form_validation->set_rules('itemqty', 'itemqty', 'trim|required');
+            // $this->form_validation->set_rules('metadesc', 'metadesc', 'trim|required');
+            // $this->form_validation->set_rules('itemkeyid', 'itemkeyid', 'trim|required');
+            // $this->form_validation->set_rules('itemprice', 'itemprice', 'trim|required');
+            // $this->form_validation->set_rules('itemmrp', 'itemmrp', 'trim|required');
+            // $this->form_validation->set_rules('deliverycharge', 'deliverycharge', 'trim|required');
+            // $this->form_validation->set_rules('itemdesc', 'itemdesc', 'trim|required');
+            // $this->form_validation->set_rules('itemimg', 'itemimg', 'trim|required');
+            // $this->form_validation->set_rules('itemvideo', 'itemvideo', 'trim|required');
+            // $this->form_validation->set_rules('itempdf', 'itempdf', 'trim|required');
+            // $this->form_validation->set_rules('itemdoc', 'itemdoc', 'trim|required');
+            if($this->form_validation->run() == FALSE)
+                        {
+                            $result = $this->adminmodel->show();
+                            $row = $this->adminmodel->product(); 
+                        $data = array(
+                                'view'=>'admin/addproduct',
+                                'result'=>$result,
+                                'row'=>$row
+                                    );
+
+                                    $this->load->view('admin/default',$data);
+           
+                        }
+               
+            else
+            {
+                
+                //        print_r($data);
+                // exit;
+        $image = array();
+        $value = $_FILES['itemimg'];
+        $count = count($_FILES['itemimg']['size']);
+
+        
+       
+        for($s=0; $s<=$count-1; $s++) 
+        {
+        $_FILES['itemimg']['name']=$value['name'][$s];
+        $_FILES['itemimg']['type']    = $value['type'][$s];
+        $_FILES['itemimg']['tmp_name'] = $value['tmp_name'][$s];
+        $_FILES['itemimg']['error']       = $value['error'][$s];
+        $_FILES['itemimg']['size']    = $value['size'][$s]; 
+        $config['upload_path'] = './upload/';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        if($this->upload->do_upload('itemimg'))
+        {
+        $img = $this->upload->data();
+        $image[$s] = $img['file_name'];
+            }
+            else{
+
+                echo $this->upload->display_errors();
+                exit;
+            }
+        }
+
+       
+        // set path to store uploaded files
+        $config['upload_path'] = './upload/';
+        $config['allowed_types'] = 'pdf';
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        if($this->upload->do_upload('itempdf'))
+        { 
+            
+        if(empty($pdf))
+        {
+
+            $pdf = NULL;
+
+        }    
+        // echo $this->upload->display_errors();
+        // exit; 
+            
+       
+         else{
+
+             $pdfe = $this->upload->data();
+            $pdf = $pdfe['file_name'];  
+            }
+        }
+        $config['upload_path'] = './upload/';
+        $config['allowed_types'] = 'doc|docx';
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        
+        if ($this->upload->do_upload('itemdoc'))
+        {   
+              $doce = $this->upload->data();
+              $doc = $doce['file_name']; 
+        }
+        $data1=array('feature'=>$this->input->post('feature'));
+       $data2=array('specifications'=>$this->input->post('specifications'));
+       if ($_FILES['galleryimage']['name'])
+       {
+        
+          $config['upload_path'] = './upload/';
+          $config['allowed_types'] = '*';
+          $this->load->library('upload');
+          $this->upload->initialize($config);
+          $this->upload->do_upload('galleryimage');
+          $data =$this->upload->data();
+          $images=$data['file_name']; 
+       $data3=array('gallerycategory'=>$this->input->post('gallerycategory'),
+                    'itemid'=>$this->input->post('gallerycat'),
+                     'galleryimagename'=>$this->input->post('galleryimagename'),
+                      'galleryimage'=>$images );
+       }
+    
+
+        $data_insert = array(
+                    'itemname'=>$this->input->post('itemname'),
+                    'itemcategory'=>$this->input->post('itemcategory'),
+                    'ismodel'=>$this->input->post('ismodel'),
+                    'itemparent'=>$this->input->post('itemparent'),
+                    'itemunit'=>$this->input->post('itemunit'),
+                    'itemqty'=>$this->input->post('itemqty'),
+                    'metadesc'=>$this->input->post('metadesc'),
+                    'itemkeyid'=>$this->input->post('itemkeyid'),
+                    'itemprice'=>$this->input->post('itemprice'),
+                    'itemmrp'=>$this->input->post('itemmrp'),
+                    'deliverycharge'=>$this->input->post('deliverycharge'),
+                    'itemdesc'=>$this->input->post('itemdesc'),
+                    'itemimg'=>json_encode($image),
+                    'itemvideo'=>$this->input->post('itemvideo'),
+                    // 'itempdf'=>$pdf,
+                    // 'itemdoc'=>$doc
+                   
+                );
+                    
+          
+//     $id = $this->adminmodel->getid();
+//     $id = $id->itemid;
+//    $this->adminmodel->media($data,$id);
+  $ids = $this->adminmodel->iteminsert($data_insert);
+
+  $this->adminmodel->featureinsert($data1,$ids);
+  $this->adminmodel->specinsert($data2);
+//    $this->adminmodel->galcatinsert($data3);
+             
+   redirect('admincnt/product');
+    
+}
+ }
+ public function prodisplay()
+ {
+     
+ $r=$this->adminmodel->proshow();
+ $data['result']=$r;
+ $data = array(
+     'view'=>'admin/prodisplay',
+     'result'=>$r
+         );
+ $this->load->view('admin/default',$data);
+ } 
+ public function prodelete($id)
+    {
+    $this->adminmodel->prodelete($id);
+    redirect("admincnt/prodisplay");
+    }
+    public function proupdate($id)
+    {
+    $result = $this->adminmodel->proupdate($id);
+    $data=array(
+            'itemid'=> $result->itemid,
+            'itemname' => $result->itemname,
+            'itemcategory' => $result->itemcategory,
+            'itemprice' =>$result->itemprice,
+            'itemmrp' =>$result->itemmrp,
+            'itemqty' =>$result->itemqty,
+            'ismodel' =>$result->ismodel,
+        'view'=>'admin/proupdate'
+            );
+            $this->load->view('admin/default',$data);
+    }
+//     public function proupdateaction()
+//  {
+     
+//    $id=$this->input->post('itemid');
+    
+    
+//        if ($_FILES['galleryimage']['name'])
+//      {
+      
+//         $config['upload_path'] = './upload/';
+//         $config['allowed_types'] = '*';
+//         $this->load->library('upload');
+//         $this->upload->initialize($config);
+//         $this->upload->do_upload('galleryimage');
+//         $data=$this->upload->data();
+
+//         $image=$data['file_name']; 
+        
+
+//         $data=array(
+//             'itemname'=>$this->input->post('itemname'),
+//             'itemcategory'=>$this->input->post('itemcategory'),
+//             'itemprice'=>$this->input->post('itemprice'),
+//             'itemmrp'=>$this->input->post('itemmrp'),
+//             'itemqty'=>$this->input->post('itemqty'),
+//             'ismodel'=>$this->input->post('ismodel')
+           
+//         );
+        
+//     $this->adminmodel->proupdateaction($id,$data); 
+    
+//       }
+//       else{
+        
+//         $data= array(
+//             'itemname'=>$this->input->post('itemname'),
+//             'itemcategory'=>$this->input->post('itemcategory'),
+//             'itemprice'=>$this->input->post('itemprice'),
+//             'itemmrp'=>$this->input->post('itemmrp'),
+//             'itemqty'=>$this->input->post('itemqty'),
+//             'ismodel'=>$this->input->post('ismodel')
+//         );
+//                $this->adminmodel->proupdateaction($id,$data); 
+       
+
+//       }
+//        redirect("admincnt/catdisplay");   
+//         }         
+}
+         
+?>
+    
